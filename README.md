@@ -1,4 +1,4 @@
-![Eureka: Elegant form builder in Swift](Eureka.jpg)
+![Eureka: Elegant form builder in Swift](Eureka.png)
 
 <p align="center">
 <a href="https://travis-ci.org/xmartlabs/Eureka"><img src="https://travis-ci.org/xmartlabs/Eureka.svg?branch=master" alt="Build status" /></a>
@@ -198,6 +198,34 @@ form += [Section("A"), Section("B"), Section("C")]
 
 // Append Rows into a Section
 section += [TextRow(), DateRow()]
+```
+
+### Result builders
+
+Eureka includes result builders to make form creation easy:
+
+#### @SectionBuilder
+```swift
+// Section + Section
+form = (Section("A") +++ {
+    URLRow("UrlRow_f1") { $0.title = "Url" }
+    if something {
+        TwitterRow("TwitterRow_f2") { $0.title = "Twitter" }
+    } else {
+        TwitterRow("TwitterRow_f1") { $0.title = "Twitter" }
+    }
+    AccountRow("AccountRow_f1") { $0.title = "Account" }
+})
+
+// Form + Section
+form +++ {
+    if something {
+        PhoneRow("PhoneRow_f1") { $0.title = "Phone" }
+    } else {
+        PhoneRow("PhoneRow_f2") { $0.title = "Phone" }
+    }
+    PasswordRow("PasswordRow_f1") { $0.title = "Password" }
+}
 ```
 
 ### Using the callbacks
@@ -1078,7 +1106,7 @@ $ pod install
 After you set up your `Package.swift` manifest file, you can add Eureka as a dependency by adding it to the dependencies value of your `Package.swift`.
 
 dependencies: [
-    .package(url: "https://github.com/xmartlabs/Eureka.git", from: "5.3.6")
+    .package(url: "https://github.com/xmartlabs/Eureka.git", from: "5.4.0")
 ]
 
 
@@ -1089,7 +1117,7 @@ dependencies: [
 Specify Eureka into your project's `Cartfile`:
 
 ```ogdl
-github "xmartlabs/Eureka" ~> 5.3
+github "xmartlabs/Eureka" ~> 5.4
 ```
 
 #### Manually as Embedded Framework
