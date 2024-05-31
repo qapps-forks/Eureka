@@ -228,6 +228,22 @@ form +++ {
 }
 ```
 
+#### @FormBuilder
+```swift
+@FormBuilder
+var form: Form {
+    Section("Section A") { section in
+        section.tag = "Section_A"
+    }
+    if true {
+        Section("Section B") { section in
+            section.tag = "Section_B"
+        }
+    }
+    NameRow("NameRow_f1") { $0.title = "Name" }
+}
+```
+
 ### Using the callbacks
 
 Eureka includes callbacks to change the appearance and behavior of a row.
@@ -1106,7 +1122,7 @@ $ pod install
 After you set up your `Package.swift` manifest file, you can add Eureka as a dependency by adding it to the dependencies value of your `Package.swift`.
 
 dependencies: [
-    .package(url: "https://github.com/xmartlabs/Eureka.git", from: "5.4.0")
+    .package(url: "https://github.com/xmartlabs/Eureka.git", from: "5.5.0")
 ]
 
 
@@ -1117,7 +1133,7 @@ dependencies: [
 Specify Eureka into your project's `Cartfile`:
 
 ```ogdl
-github "xmartlabs/Eureka" ~> 5.4
+github "xmartlabs/Eureka" ~> 5.5
 ```
 
 #### Manually as Embedded Framework
