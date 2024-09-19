@@ -67,11 +67,44 @@ open class DateCell: Cell<Date>, CellType {
         super.update()
         selectionStyle = row.isDisabled ? .none : .default
         datePicker.setDate(row.value ?? Date(), animated: row is CountDownPickerRow)
-        datePicker.minimumDate = (row as? DatePickerRowProtocol)?.minimumDate
-        datePicker.maximumDate = (row as? DatePickerRowProtocol)?.maximumDate
-        if let minuteIntervalValue = (row as? DatePickerRowProtocol)?.minuteInterval {
-            datePicker.minuteInterval = minuteIntervalValue
+        
+        if let dateRow = row as? DatePickerRowProtocol {
+            let minDate = dateRow.minimumDate
+            let maxDate = dateRow.maximumDate
+    
+            // Reset min and max dates to avoid temporary invalid states
+            datePicker.minimumDate = nil
+            datePicker.maximumDate = nil
+    
+            // Set the new min and max dates if valid
+            if let minDate = minDate, let maxDate = maxDate {
+                if minDate <= maxDate {
+                    datePicker.minimumDate = minDate
+                    datePicker.maximumDate = maxDate
+                } else {
+                    // Invalid range, do not set min and max dates
+                    // Optionally, handle this case (e.g., log a warning)
+                }
+            } else {
+                // Set whichever date is not nil
+                datePicker.minimumDate = minDate
+                datePicker.maximumDate = maxDate
+            }
+    
+            // Ensure datePicker.date is within the new range
+            if let minDate = datePicker.minimumDate, datePicker.date < minDate {
+                datePicker.date = minDate
+                row.value = minDate
+            } else if let maxDate = datePicker.maximumDate, datePicker.date > maxDate {
+                datePicker.date = maxDate
+                row.value = maxDate
+            }
+    
+            if let minuteIntervalValue = dateRow.minuteInterval {
+                datePicker.minuteInterval = minuteIntervalValue
+            }
         }
+    
         if row.isHighlighted {
             textLabel?.textColor = tintColor
         }
