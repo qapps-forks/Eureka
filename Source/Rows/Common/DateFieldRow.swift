@@ -71,6 +71,7 @@ open class DateCell: Cell<Date>, CellType {
         datePicker.maximumDate = (row as? DatePickerRowProtocol)?.maximumDate
         if let minuteIntervalValue = (row as? DatePickerRowProtocol)?.minuteInterval {
             datePicker.minuteInterval = minuteIntervalValue
+        }
         if row.isHighlighted {
             textLabel?.textColor = tintColor
         }
