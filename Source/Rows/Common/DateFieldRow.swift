@@ -67,16 +67,37 @@ open class DateCell: Cell<Date>, CellType {
         super.update()
         selectionStyle = row.isDisabled ? .none : .default
         datePicker.setDate(row.value ?? Date(), animated: row is CountDownPickerRow)
-        datePicker.minimumDate = (row as? DatePickerRowProtocol)?.minimumDate
-        datePicker.maximumDate = (row as? DatePickerRowProtocol)?.maximumDate
-        if let minuteIntervalValue = (row as? DatePickerRowProtocol)?.minuteInterval {
-            datePicker.minuteInterval = minuteIntervalValue
+        
+        if let dateRow = row as? DatePickerRowProtocol {
+            let minDate = dateRow.minimumDate
+            let maxDate = dateRow.maximumDate
+            
+            // Check if both dates are set and valid
+            if let minDate = minDate, let maxDate = maxDate {
+                if minDate <= maxDate {
+                    datePicker.minimumDate = minDate
+                    datePicker.maximumDate = maxDate
+                } else {
+                    // Handle the invalid case by not setting invalid dates
+                    datePicker.minimumDate = nil
+                    datePicker.maximumDate = nil
+                }
+            } else {
+                // Set whichever date is not nil
+                datePicker.minimumDate = minDate
+                datePicker.maximumDate = maxDate
+            }
+            
+            if let minuteIntervalValue = dateRow.minuteInterval {
+                datePicker.minuteInterval = minuteIntervalValue
+            }
         }
+        
         if row.isHighlighted {
             textLabel?.textColor = tintColor
         }
     }
-
+    
     open override func didSelect() {
         super.didSelect()
         row.deselect()
