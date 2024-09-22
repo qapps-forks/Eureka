@@ -66,8 +66,7 @@ open class DateCell: Cell<Date>, CellType {
     open override func update() {
         super.update()
         selectionStyle = row.isDisabled ? .none : .default
-        datePicker.setDate(row.value ?? Date(), animated: row is CountDownPickerRow)
-        
+    
         if let dateRow = row as? DatePickerRowProtocol {
             let minDate = dateRow.minimumDate
             let maxDate = dateRow.maximumDate
@@ -77,27 +76,25 @@ open class DateCell: Cell<Date>, CellType {
             datePicker.maximumDate = nil
     
             // Set the new min and max dates if valid
-            if let minDate = minDate, let maxDate = maxDate {
-                if minDate <= maxDate {
-                    datePicker.minimumDate = minDate
-                    datePicker.maximumDate = maxDate
-                } else {
-                    // Invalid range, do not set min and max dates
-                    // Optionally, handle this case (e.g., log a warning)
-                }
+            if let minDate = minDate, let maxDate = maxDate, minDate <= maxDate {
+                datePicker.minimumDate = minDate
+                datePicker.maximumDate = maxDate
             } else {
                 // Set whichever date is not nil
                 datePicker.minimumDate = minDate
                 datePicker.maximumDate = maxDate
             }
     
-            // Ensure datePicker.date is within the new range
-            if let minDate = datePicker.minimumDate, datePicker.date < minDate {
-                datePicker.date = minDate
+            // Now set the date picker's date, ensuring it's within the new range
+            let dateToSet = row.value ?? Date()
+            if let minDate = datePicker.minimumDate, dateToSet < minDate {
+                datePicker.setDate(minDate, animated: row is CountDownPickerRow)
                 row.value = minDate
-            } else if let maxDate = datePicker.maximumDate, datePicker.date > maxDate {
-                datePicker.date = maxDate
+            } else if let maxDate = datePicker.maximumDate, dateToSet > maxDate {
+                datePicker.setDate(maxDate, animated: row is CountDownPickerRow)
                 row.value = maxDate
+            } else {
+                datePicker.setDate(dateToSet, animated: row is CountDownPickerRow)
             }
     
             if let minuteIntervalValue = dateRow.minuteInterval {
