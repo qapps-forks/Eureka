@@ -86,15 +86,18 @@ open class DateCell: Cell<Date>, CellType {
             }
     
             // Now set the date picker's date, ensuring it's within the new range
-            let dateToSet = row.value ?? Date()
-            if let minDate = datePicker.minimumDate, dateToSet < minDate {
-                datePicker.setDate(minDate, animated: row is CountDownPickerRow)
-                row.value = minDate
-            } else if let maxDate = datePicker.maximumDate, dateToSet > maxDate {
-                datePicker.setDate(maxDate, animated: row is CountDownPickerRow)
-                row.value = maxDate
+            if let dateToSet = row.value {
+                if let minDate = datePicker.minimumDate, dateToSet < minDate {
+                    datePicker.setDate(minDate, animated: row is CountDownPickerRow)
+                    row.value = minDate
+                } else if let maxDate = datePicker.maximumDate, dateToSet > maxDate {
+                    datePicker.setDate(maxDate, animated: row is CountDownPickerRow)
+                    row.value = maxDate
+                } else {
+                    datePicker.setDate(dateToSet, animated: row is CountDownPickerRow)
+                }
             } else {
-                datePicker.setDate(dateToSet, animated: row is CountDownPickerRow)
+                datePicker.setDate(nil, animated: row is CountDownPickerRow)
             }
     
             if let minuteIntervalValue = dateRow.minuteInterval {
