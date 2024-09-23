@@ -97,7 +97,7 @@ open class DateCell: Cell<Date>, CellType {
                     datePicker.setDate(dateToSet, animated: row is CountDownPickerRow)
                 }
             } else {
-                datePicker.setDate(nil, animated: row is CountDownPickerRow)
+                datePicker.setDate(row.value, animated: row is CountDownPickerRow)
             }
     
             if let minuteIntervalValue = dateRow.minuteInterval {
