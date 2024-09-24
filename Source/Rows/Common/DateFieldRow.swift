@@ -64,47 +64,47 @@ open class DateCell: Cell<Date>, CellType {
     }
 
     open override func update() {
-		super.update()
-		selectionStyle = row.isDisabled ? .none : .default
-	
-		// Ensure the picker is in a clean state before setting bounds
-		datePicker.minimumDate = nil
-		datePicker.maximumDate = nil
-	
-		// Apply the new minimum and maximum dates
-		if let dateRow = row as? DatePickerRowProtocol {
-			datePicker.minimumDate = dateRow.minimumDate
-			datePicker.maximumDate = dateRow.maximumDate
-		}
-	
-		// Ensure the row's value is within the bounds of minimumDate and maximumDate
-		let dateToSet: Date
-		if let value = row.value {
-			if let min = datePicker.minimumDate, value < min {
-				dateToSet = min
-			} else if let max = datePicker.maximumDate, value > max {
-				dateToSet = max
-			} else {
-				dateToSet = value
-			}
-		} else {
-			// If row.value is nil, use a valid default date within the bounds
-			dateToSet = datePicker.minimumDate ?? datePicker.maximumDate ?? Date()
-		}
-	
-		// Now safely set the date
-		datePicker.setDate(dateToSet, animated: row is CountDownPickerRow)
-	
-		// Apply the minute interval if specified
-		if let minuteIntervalValue = (row as? DatePickerRowProtocol)?.minuteInterval {
-			datePicker.minuteInterval = minuteIntervalValue
-		}
-	
-		// Handle highlighting state
-		if row.isHighlighted {
-			textLabel?.textColor = tintColor
-		}
+	super.update()
+	selectionStyle = row.isDisabled ? .none : .default
+
+	// Ensure the picker is in a clean state before setting bounds
+	datePicker.minimumDate = nil
+	datePicker.maximumDate = nil
+
+	// Apply the new minimum and maximum dates
+	if let dateRow = row as? DatePickerRowProtocol {
+		datePicker.minimumDate = dateRow.minimumDate
+		datePicker.maximumDate = dateRow.maximumDate
 	}
+
+	// Ensure the row's value is within the bounds of minimumDate and maximumDate
+	let dateToSet: Date
+	if let value = row.value {
+		if let min = datePicker.minimumDate, value < min {
+			dateToSet = min
+		} else if let max = datePicker.maximumDate, value > max {
+			dateToSet = max
+		} else {
+			dateToSet = value
+		}
+	} else {
+		// If row.value is nil, use a valid default date within the bounds
+		dateToSet = datePicker.minimumDate ?? datePicker.maximumDate ?? Date()
+	}
+
+	// Now safely set the date
+	datePicker.setDate(dateToSet, animated: row is CountDownPickerRow)
+
+	// Apply the minute interval if specified
+	if let minuteIntervalValue = (row as? DatePickerRowProtocol)?.minuteInterval {
+		datePicker.minuteInterval = minuteIntervalValue
+	}
+
+	// Handle highlighting state
+	if row.isHighlighted {
+		textLabel?.textColor = tintColor
+	}
+    }
 
     open override func didSelect() {
         super.didSelect()
