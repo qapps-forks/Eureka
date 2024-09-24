@@ -68,8 +68,20 @@ open class DateCell: Cell<Date>, CellType {
         selectionStyle = row.isDisabled ? .none : .default
     
         if let dateRow = row as? DatePickerRowProtocol {
-            let minDate = dateRow.minimumDate
-            let maxDate = dateRow.maximumDate
+            var minDate = dateRow.minimumDate
+            var maxDate = dateRow.maximumDate
+    
+            // Handle the case where the row.value is out of bounds before setting min and max dates
+            if let dateToSet = row.value {
+                if let min = minDate, dateToSet < min {
+                    // If row.value is less than the minimum, avoid setting the minimum date
+                    minDate = nil
+                }
+                if let max = maxDate, dateToSet > max {
+                    // If row.value is greater than the maximum, avoid setting the maximum date
+                    maxDate = nil
+                }
+            }
     
             // Reset min and max dates to avoid temporary invalid states
             datePicker.minimumDate = nil
@@ -85,7 +97,7 @@ open class DateCell: Cell<Date>, CellType {
                 datePicker.maximumDate = maxDate
             }
     
-            // Now set the date picker's date, ensuring it's within the new range
+            // Set the date picker's date, ensuring it's within the valid range
             if let dateToSet = row.value {
                 if let minDate = datePicker.minimumDate, dateToSet < minDate {
                     datePicker.setDate(minDate, animated: row is CountDownPickerRow)
@@ -97,10 +109,11 @@ open class DateCell: Cell<Date>, CellType {
                     datePicker.setDate(dateToSet, animated: row is CountDownPickerRow)
                 }
             } else {
+                // Default to the current date if row.value is nil
                 datePicker.setDate(Date(), animated: row is CountDownPickerRow)
-                // Do not update row.value to keep it as nil
             }
     
+            // Apply the minute interval if specified
             if let minuteIntervalValue = dateRow.minuteInterval {
                 datePicker.minuteInterval = minuteIntervalValue
             }
