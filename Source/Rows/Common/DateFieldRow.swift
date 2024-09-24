@@ -68,27 +68,39 @@ open class DateCell: Cell<Date>, CellType {
         selectionStyle = row.isDisabled ? .none : .default
     
         if let dateRow = row as? DatePickerRowProtocol {
-            var dateToSet = row.value ?? Date()  // Start with current value or default to now
+            var dateToSet: Date
     
             let minDate = dateRow.minimumDate
             let maxDate = dateRow.maximumDate
     
-            // Ensure row.value is within bounds before setting the min/max dates
-            if let min = minDate, dateToSet < min {
-                dateToSet = min  // Adjust dateToSet if it's less than the minimum date
-            } else if let max = maxDate, dateToSet > max {
-                dateToSet = max  // Adjust dateToSet if it's greater than the maximum date
+            // Determine the correct date to set in the picker
+            if let value = row.value {
+                // If row.value is set, validate it within the bounds of minDate and maxDate
+                if let min = minDate, value < min {
+                    dateToSet = min  // Adjust to minDate if row.value is below the minimum
+                } else if let max = maxDate, value > max {
+                    dateToSet = max  // Adjust to maxDate if row.value is above the maximum
+                } else {
+                    dateToSet = value  // Keep row.value as is if it's within bounds
+                }
+            } else {
+                // If row.value is nil, temporarily set the picker to a valid date within the bounds, but do not modify row.value
+                dateToSet = minDate ?? maxDate ?? Date()  // Use minDate, maxDate, or fallback to Date()
             }
     
             // Set the datePicker's min and max dates
             datePicker.minimumDate = minDate
             datePicker.maximumDate = maxDate
     
-            // Set the picker date safely after setting min/max
+            // Set the picker date without modifying row.value if it's nil
             datePicker.setDate(dateToSet, animated: row is CountDownPickerRow)
-            row.value = dateToSet  // Update row.value only if it has changed
     
-            // Set the minute interval if provided
+            // Only update row.value if it was previously set and needs to be adjusted
+            if row.value != nil {
+                row.value = dateToSet
+            }
+    
+            // Apply the minute interval if provided
             if let minuteIntervalValue = dateRow.minuteInterval {
                 datePicker.minuteInterval = minuteIntervalValue
             }
