@@ -68,52 +68,27 @@ open class DateCell: Cell<Date>, CellType {
         selectionStyle = row.isDisabled ? .none : .default
     
         if let dateRow = row as? DatePickerRowProtocol {
-            var minDate = dateRow.minimumDate
-            var maxDate = dateRow.maximumDate
+            var dateToSet = row.value ?? Date()  // Start with current value or default to now
     
-            // Handle the case where the row.value is out of bounds before setting min and max dates
-            if let dateToSet = row.value {
-                if let min = minDate, dateToSet < min {
-                    // If row.value is less than the minimum, avoid setting the minimum date
-                    minDate = nil
-                }
-                if let max = maxDate, dateToSet > max {
-                    // If row.value is greater than the maximum, avoid setting the maximum date
-                    maxDate = nil
-                }
+            let minDate = dateRow.minimumDate
+            let maxDate = dateRow.maximumDate
+    
+            // Ensure row.value is within bounds before setting the min/max dates
+            if let min = minDate, dateToSet < min {
+                dateToSet = min  // Adjust dateToSet if it's less than the minimum date
+            } else if let max = maxDate, dateToSet > max {
+                dateToSet = max  // Adjust dateToSet if it's greater than the maximum date
             }
     
-            // Reset min and max dates to avoid temporary invalid states
-            datePicker.minimumDate = nil
-            datePicker.maximumDate = nil
+            // Set the datePicker's min and max dates
+            datePicker.minimumDate = minDate
+            datePicker.maximumDate = maxDate
     
-            // Set the new min and max dates if valid
-            if let minDate = minDate, let maxDate = maxDate, minDate <= maxDate {
-                datePicker.minimumDate = minDate
-                datePicker.maximumDate = maxDate
-            } else {
-                // Set whichever date is not nil
-                datePicker.minimumDate = minDate
-                datePicker.maximumDate = maxDate
-            }
+            // Set the picker date safely after setting min/max
+            datePicker.setDate(dateToSet, animated: row is CountDownPickerRow)
+            row.value = dateToSet  // Update row.value only if it has changed
     
-            // Set the date picker's date, ensuring it's within the valid range
-            if let dateToSet = row.value {
-                if let minDate = datePicker.minimumDate, dateToSet < minDate {
-                    datePicker.setDate(minDate, animated: row is CountDownPickerRow)
-                    row.value = minDate
-                } else if let maxDate = datePicker.maximumDate, dateToSet > maxDate {
-                    datePicker.setDate(maxDate, animated: row is CountDownPickerRow)
-                    row.value = maxDate
-                } else {
-                    datePicker.setDate(dateToSet, animated: row is CountDownPickerRow)
-                }
-            } else {
-                // Default to the current date if row.value is nil
-                datePicker.setDate(Date(), animated: row is CountDownPickerRow)
-            }
-    
-            // Apply the minute interval if specified
+            // Set the minute interval if provided
             if let minuteIntervalValue = dateRow.minuteInterval {
                 datePicker.minuteInterval = minuteIntervalValue
             }
