@@ -67,48 +67,45 @@ open class DateCell: Cell<Date>, CellType {
         super.update()
         selectionStyle = row.isDisabled ? .none : .default
     
+        // Reset the date picker to avoid any lingering state
+        datePicker.removeFromSuperview()
+        datePicker = UIDatePicker()
+        setupDatePicker()
+    
+        // Set the date based on row.value, or default to the current date
+        datePicker.setDate(row.value ?? Date(), animated: row is CountDownPickerRow)
+    
+        // Set the minimum and maximum date from the row's configuration
         if let dateRow = row as? DatePickerRowProtocol {
-            var dateToSet: Date
+            datePicker.minimumDate = dateRow.minimumDate
+            datePicker.maximumDate = dateRow.maximumDate
     
-            let minDate = dateRow.minimumDate
-            let maxDate = dateRow.maximumDate
-    
-            // Determine the correct date to set in the picker
-            if let value = row.value {
-                // If row.value is set, validate it within the bounds of minDate and maxDate
-                if let min = minDate, value < min {
-                    dateToSet = min  // Adjust to minDate if row.value is below the minimum
-                } else if let max = maxDate, value > max {
-                    dateToSet = max  // Adjust to maxDate if row.value is above the maximum
-                } else {
-                    dateToSet = value  // Keep row.value as is if it's within bounds
-                }
-            } else {
-                // If row.value is nil, temporarily set the picker to a valid date within the bounds, but do not modify row.value
-                dateToSet = minDate ?? maxDate ?? Date()  // Use minDate, maxDate, or fallback to Date()
-            }
-    
-            // Set the datePicker's min and max dates
-            datePicker.minimumDate = minDate
-            datePicker.maximumDate = maxDate
-    
-            // Set the picker date without modifying row.value if it's nil
-            datePicker.setDate(dateToSet, animated: row is CountDownPickerRow)
-    
-            // Only update row.value if it was previously set and needs to be adjusted
-            if row.value != nil {
-                row.value = dateToSet
-            }
-    
-            // Apply the minute interval if provided
+            // Set minute interval if applicable
             if let minuteIntervalValue = dateRow.minuteInterval {
                 datePicker.minuteInterval = minuteIntervalValue
             }
         }
     
+        // Handle highlighting
         if row.isHighlighted {
             textLabel?.textColor = tintColor
         }
+    }
+    
+    private func setupDatePicker() {
+        datePicker.datePickerMode = datePickerMode()
+    
+        #if swift(>=5.2)
+        if #available(iOS 13.4, *) {
+            datePicker.preferredDatePickerStyle = .wheels
+        }
+        #endif
+    
+        // Add the target-action for date picker value changes
+        datePicker.addTarget(self, action: #selector(DateCell.datePickerValueDidChange(_:)), for: .valueChanged)
+    
+        // Add the date picker back to the cell's contentView
+        contentView.addSubview(datePicker)
     }
 
     open override func didSelect() {
